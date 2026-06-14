@@ -2,11 +2,11 @@
 
 一个本地静态网页项目，用交互式界面介绍常见文件格式。项目包含 105 条文件格式说明，支持搜索、分类筛选、快速识别文件扩展名，以及详细/简洁两种浏览方式。
 
-## 在线/本地使用
+## 使用方式
 
 这是纯前端静态项目，不需要安装依赖。
 
-直接打开：
+直接用浏览器打开：
 
 ```text
 文件格式简要介绍/index.html
@@ -25,18 +25,18 @@
 
 ```text
 .
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md
-├── .gitignore
-└── 文件格式简要介绍/
-    ├── index.html
-    ├── styles.css
-    ├── app.js
-    ├── formats.csv
-    ├── README.md
-    └── assets/
-        └── format-atlas.svg
+|-- README.md
+|-- LICENSE
+|-- CONTRIBUTING.md
+|-- .gitignore
+`-- 文件格式简要介绍/
+    |-- index.html
+    |-- styles.css
+    |-- app.js
+    |-- formats.csv
+    |-- README.md
+    `-- assets/
+        `-- format-atlas.svg
 ```
 
 ## 数据说明
