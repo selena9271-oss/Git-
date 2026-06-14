@@ -1,0 +1,1082 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件格式介绍</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --bg: #07090d;
+  --panel: rgba(12, 18, 26, 0.78);
+  --panel-strong: rgba(17, 25, 35, 0.94);
+  --line: rgba(112, 255, 235, 0.24);
+  --line-hot: rgba(255, 202, 87, 0.72);
+  --text: #edf7f8;
+  --muted: #8ea7a9;
+  --cyan: #37f4ff;
+  --green: #64ff9d;
+  --amber: #ffca57;
+  --magenta: #ff5fd2;
+  --red: #ff6b6b;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(55, 244, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 78% 12%, rgba(255, 202, 87, 0.12), transparent 24rem),
+    radial-gradient(circle at 50% 90%, rgba(100, 255, 157, 0.1), transparent 26rem),
+    var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#starfield,
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+#starfield {
+  z-index: 0;
+}
+
+.scanlines {
+  z-index: 1;
+  opacity: 0.22;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 100% 4px;
+  mix-blend-mode: screen;
+}
+
+.shell {
+  position: relative;
+  z-index: 2;
+  width: min(1480px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 34px 0 42px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 520px);
+  gap: 24px;
+  align-items: stretch;
+  min-height: 230px;
+}
+
+.hero-copy,
+.status-grid,
+.control-bar,
+.quick-panel,
+.signal-panel,
+.format-zone,
+.detail-panel {
+  border: 1px solid var(--line);
+  background: linear-gradient(145deg, rgba(12, 18, 26, 0.88), rgba(8, 12, 18, 0.76));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.hero-copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 230px;
+  padding: clamp(28px, 5vw, 58px);
+  overflow: hidden;
+}
+
+.hero-copy::after {
+  content: "";
+  position: absolute;
+  right: 28px;
+  bottom: 22px;
+  width: min(42vw, 410px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(55, 244, 255, 0.22);
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle, transparent 0 30px, rgba(55, 244, 255, 0.12) 31px 32px),
+    conic-gradient(from 120deg, transparent, rgba(255, 202, 87, 0.14), transparent, rgba(100, 255, 157, 0.12), transparent);
+  transform: translate(18%, 34%);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--green);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  margin: 0;
+  max-width: 780px;
+  font-size: clamp(2.45rem, 5vw, 5.4rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.subtitle {
+  max-width: 640px;
+  margin: 22px 0 0;
+  color: #bfd7d9;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.atlas-mark {
+  position: absolute;
+  right: 36px;
+  bottom: 28px;
+  z-index: 0;
+  width: min(32vw, 260px);
+  max-width: 48%;
+  opacity: 0.42;
+  filter: drop-shadow(0 0 32px rgba(55, 244, 255, 0.26));
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+
+.status-unit {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 120px;
+  padding: 24px;
+  background: rgba(10, 14, 20, 0.92);
+}
+
+.status-unit span {
+  color: var(--cyan);
+  font-size: clamp(2rem, 4vw, 4.2rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.status-unit small {
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.control-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 16px;
+}
+
+.quick-panel {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.72fr) minmax(360px, 1fr);
+  gap: 18px;
+  align-items: end;
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.quick-copy h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.quick-copy p:last-child {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.quick-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.file-query {
+  display: grid;
+  gap: 8px;
+}
+
+.file-query span {
+  color: var(--green);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.file-query input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(100, 255, 157, 0.32);
+  background: rgba(3, 6, 10, 0.72);
+  color: var(--text);
+  outline: none;
+  padding: 13px 14px;
+}
+
+.file-query input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(100, 255, 157, 0.12);
+}
+
+.file-picker,
+.lookup-button {
+  height: 46px;
+  border: 1px solid rgba(55, 244, 255, 0.3);
+  background: rgba(10, 18, 26, 0.86);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.file-picker {
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+}
+
+.file-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lookup-button {
+  border-color: rgba(255, 202, 87, 0.5);
+  background: linear-gradient(120deg, rgba(255, 202, 87, 0.92), rgba(255, 95, 210, 0.76));
+  color: #150c12;
+  font-weight: 900;
+}
+
+.quick-result {
+  grid-column: 1 / -1;
+  min-height: 38px;
+  margin: 0;
+  border: 1px solid rgba(55, 244, 255, 0.18);
+  background: rgba(3, 8, 12, 0.62);
+  color: #bfd7d9;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+.quick-result strong {
+  color: var(--amber);
+}
+
+.search-box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.search-box span {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.search-box input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(55, 244, 255, 0.3);
+  background: rgba(3, 6, 10, 0.72);
+  color: var(--text);
+  outline: none;
+  padding: 14px 16px;
+}
+
+.search-box input:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(255, 202, 87, 0.13);
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, 82px);
+  border: 1px solid rgba(255, 202, 87, 0.34);
+}
+
+.mode-button,
+.chip {
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mode-button {
+  height: 46px;
+  background: rgba(11, 17, 24, 0.84);
+}
+
+.mode-button.active {
+  background: var(--amber);
+  color: #171006;
+  font-weight: 800;
+}
+
+.category-strip {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+  overflow-x: auto;
+  padding: 3px 0 10px;
+}
+
+.chip {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(55, 244, 255, 0.26);
+  background: rgba(10, 18, 26, 0.74);
+}
+
+.chip.active {
+  border-color: var(--line-hot);
+  background: linear-gradient(120deg, rgba(255, 202, 87, 0.9), rgba(255, 95, 210, 0.78));
+  color: #140b14;
+  font-weight: 800;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr) 330px;
+  gap: 18px;
+  align-items: start;
+}
+
+.signal-panel,
+.detail-panel {
+  position: sticky;
+  top: 16px;
+  padding: 18px;
+}
+
+.panel-title {
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.orbit-map {
+  position: relative;
+  height: 330px;
+  margin-top: 18px;
+  border: 1px solid rgba(100, 255, 157, 0.2);
+  background:
+    linear-gradient(90deg, rgba(55, 244, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(55, 244, 255, 0.08) 1px, transparent 1px),
+    rgba(2, 6, 9, 0.42);
+  background-size: 28px 28px;
+  overflow: hidden;
+}
+
+.orbit-map::before,
+.orbit-map::after {
+  content: "";
+  position: absolute;
+  inset: 34px;
+  border: 1px solid rgba(55, 244, 255, 0.2);
+  border-radius: 50%;
+}
+
+.orbit-map::after {
+  inset: 78px;
+  border-color: rgba(255, 202, 87, 0.24);
+}
+
+.orbit-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--amber);
+  border-radius: 50%;
+  color: var(--amber);
+  font-size: 0.72rem;
+  text-align: center;
+  line-height: 1.35;
+  background: rgba(7, 9, 13, 0.86);
+}
+
+.orbit-node {
+  position: absolute;
+  z-index: 3;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 16px var(--cyan);
+}
+
+.orbit-node.hot {
+  width: 13px;
+  height: 13px;
+  background: var(--amber);
+  box-shadow: 0 0 20px var(--amber);
+}
+
+.format-zone {
+  min-height: 640px;
+  padding: 18px;
+}
+
+.zone-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.zone-head h2 {
+  margin: 0;
+  font-size: 1.7rem;
+}
+
+.zone-head p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 12px;
+}
+
+.format-grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(142px, 1fr));
+}
+
+.format-card {
+  position: relative;
+  min-height: 154px;
+  border: 1px solid rgba(55, 244, 255, 0.22);
+  background:
+    linear-gradient(145deg, rgba(14, 23, 31, 0.92), rgba(6, 9, 13, 0.88)),
+    linear-gradient(90deg, rgba(55, 244, 255, 0.05), transparent);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.format-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent, var(--cyan));
+  box-shadow: 0 0 22px var(--accent, var(--cyan));
+}
+
+.format-card:hover,
+.format-card.active {
+  border-color: var(--accent, var(--amber));
+  transform: translateY(-2px);
+}
+
+.format-card strong {
+  display: block;
+  color: var(--accent, var(--cyan));
+  font-size: 1.45rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.format-card span {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--amber);
+  font-size: 0.84rem;
+}
+
+.format-card p {
+  margin: 12px 0 0;
+  color: #b7c9ca;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.format-grid.compact .format-card {
+  min-height: 108px;
+}
+
+.format-grid.compact .format-card p {
+  display: none;
+}
+
+.detail-panel {
+  min-height: 410px;
+}
+
+.detail-code {
+  margin-top: 28px;
+  color: var(--cyan);
+  font-size: clamp(2.35rem, 5vw, 4rem);
+  line-height: 1;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.detail-panel h2 {
+  margin: 18px 0 0;
+  color: var(--amber);
+  font-size: 1.4rem;
+}
+
+.detail-panel p {
+  margin: 18px 0 0;
+  color: #c6dddf;
+  line-height: 1.75;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.detail-meta span {
+  border: 1px solid rgba(100, 255, 157, 0.26);
+  color: var(--green);
+  padding: 8px 10px;
+  background: rgba(6, 11, 15, 0.64);
+}
+
+@media (max-width: 1160px) {
+  .hero,
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-panel,
+  .detail-panel {
+    position: static;
+  }
+
+  .orbit-map {
+    height: 220px;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100% - 20px, 1480px);
+    padding-top: 12px;
+  }
+
+  .hero-copy {
+    padding: 26px 18px;
+  }
+
+  .status-grid,
+  .control-bar,
+  .quick-panel,
+  .quick-tools,
+  .search-box,
+  .zone-head {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .status-unit {
+    min-height: 94px;
+    padding: 14px;
+  }
+
+  .mode-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .format-grid,
+  .format-grid.compact {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main class="shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <h1>文件格式介绍</h1>
+          <img class="atlas-mark" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhlaWdodD0iNjQwIiB2aWV3Qm94PSIwIDAgNjQwIDY0MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIGRlc2MiPgogIDx0aXRsZSBpZD0idGl0bGUiPkZvcm1hdCBBdGxhcyBTaWduYWwgTWFyazwvdGl0bGU+CiAgPGRlc2MgaWQ9ImRlc2MiPkEgc2NpLWZpIHJhZGFyIHN0eWxlIHNpZ25hbCBtYXJrIGZvciB0aGUgZmlsZSBmb3JtYXQgYXRsYXMgaW50ZXJmYWNlLjwvZGVzYz4KICA8cmVjdCB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgZmlsbD0iIzA1MDgwYyIvPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM3ZjRmZiIgc3Ryb2tlLW9wYWNpdHk9Ii4zOCI+CiAgICA8Y2lyY2xlIGN4PSIzMjAiIGN5PSIzMjAiIHI9IjI1MCIvPgogICAgPGNpcmNsZSBjeD0iMzIwIiBjeT0iMzIwIiByPSIxOTAiLz4KICAgIDxjaXJjbGUgY3g9IjMyMCIgY3k9IjMyMCIgcj0iMTI2Ii8+CiAgICA8cGF0aCBkPSJNMzIwIDQydjU1Nk00MiAzMjBoNTU2Ii8+CiAgICA8cGF0aCBkPSJNMTQzIDE0M2wzNTQgMzU0TTQ5NyAxNDNMMTQzIDQ5NyIvPgogIDwvZz4KICA8ZyBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTMyMCAzMjAgNDg4IDIyNiIgc3Ryb2tlPSIjZmZjYTU3Ii8+CiAgICA8cGF0aCBkPSJNMzIwIDMyMCAyMDggNDcwIiBzdHJva2U9IiM2NGZmOWQiLz4KICAgIDxwYXRoIGQ9Ik0zMjAgMzIwIDE2MiAyNDIiIHN0cm9rZT0iI2ZmNWZkMiIvPgogIDwvZz4KICA8Zz4KICAgIDxjaXJjbGUgY3g9IjQ4OCIgY3k9IjIyNiIgcj0iMTgiIGZpbGw9IiNmZmNhNTciLz4KICAgIDxjaXJjbGUgY3g9IjIwOCIgY3k9IjQ3MCIgcj0iMTgiIGZpbGw9IiM2NGZmOWQiLz4KICAgIDxjaXJjbGUgY3g9IjE2MiIgY3k9IjI0MiIgcj0iMTgiIGZpbGw9IiNmZjVmZDIiLz4KICAgIDxjaXJjbGUgY3g9IjMyMCIgY3k9IjMyMCIgcj0iNTQiIGZpbGw9IiMwNzEzMWEiIHN0cm9rZT0iIzM3ZjRmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPC9nPgogIDxnIGZpbGw9IiNlZGY3ZjgiIGZvbnQtZmFtaWx5PSJTZWdvZSBVSSwgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI4MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPgogICAgPHRleHQgeD0iMzIwIiB5PSIzMDgiIGZvbnQtc2l6ZT0iMzIiPkZPUk1BVDwvdGV4dD4KICAgIDx0ZXh0IHg9IjMyMCIgeT0iMzQ2IiBmb250LXNpemU9IjMyIj5BVExBUzwvdGV4dD4KICA8L2c+Cjwvc3ZnPgo=" alt="格式星图视觉标识" />
+        </div>
+        <section class="status-grid" aria-label="项目统计">
+          <div class="status-unit">
+            <span id="totalCount">105</span>
+            <small>格式条目</small>
+          </div>
+          <div class="status-unit">
+            <span id="categoryCount">0</span>
+            <small>分类模块</small>
+          </div>
+          <div class="status-unit">
+            <span id="visibleCount">105</span>
+            <small>当前匹配</small>
+          </div>
+        </section>
+      </header>
+
+      <section class="control-bar" aria-label="筛选控制">
+        <label class="search-box">
+          <span>检索</span>
+          <input id="searchInput" type="search" placeholder="输入扩展名、类型或用途，例如 pdf / 图片 / 数据" autocomplete="off" />
+        </label>
+        <div class="mode-switch" role="group" aria-label="视图模式">
+          <button class="mode-button active" type="button" data-density="comfortable">详细</button>
+          <button class="mode-button" type="button" data-density="compact">简洁</button>
+        </div>
+      </section>
+
+      <section class="quick-panel" aria-label="快速识别文件">
+        <div class="quick-copy">
+          <p class="eyebrow">QUICK IDENTIFY</p>
+          <h2>快速搜索需要查询的文件</h2>
+          <p>输入文件名或选择本地文件，界面会根据扩展名定位对应格式说明。</p>
+        </div>
+        <div class="quick-tools">
+          <label class="file-query">
+            <span>文件名</span>
+            <input id="fileNameInput" type="text" placeholder="例如：report.pdf、photo.jpeg、archive.tar.gz" autocomplete="off" />
+          </label>
+          <label class="file-picker">
+            <input id="filePicker" type="file" />
+            <span>选择文件</span>
+          </label>
+          <button id="quickLookupButton" class="lookup-button" type="button">识别</button>
+        </div>
+        <p id="quickResult" class="quick-result">等待输入文件名。</p>
+      </section>
+
+      <section class="category-strip" id="categoryStrip" aria-label="文件格式分类"></section>
+
+      <section class="workspace">
+        <aside class="signal-panel" aria-label="分类星图">
+          <div class="panel-title">分类星图</div>
+          <div class="orbit-map" id="orbitMap" aria-hidden="true">
+            <div class="orbit-core">FORMAT<br />CORE</div>
+          </div>
+        </aside>
+
+        <section class="format-zone" aria-label="文件格式列表">
+          <div class="zone-head">
+            <div>
+              <p class="eyebrow">SCAN RESULT</p>
+              <h2 id="resultTitle">全部格式</h2>
+            </div>
+            <p id="resultHint">点击任意格式查看详细说明。</p>
+          </div>
+          <div class="format-grid" id="formatGrid"></div>
+        </section>
+
+        <aside class="detail-panel" aria-live="polite" aria-label="格式详情">
+          <div class="panel-title">扫描详情</div>
+          <div class="detail-code" id="detailExt">.pdf</div>
+          <h2 id="detailName">版式文档</h2>
+          <p id="detailDesc">便携式文档格式，强调跨平台显示一致性，常用于论文、合同和报告。</p>
+          <div class="detail-meta">
+            <span id="detailIndex">#007</span>
+            <span id="detailType">文档</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+const formats = [
+  { ext: ".txt", type: "文本文档", desc: "纯文本文件，不包含复杂样式，适合记录日志、说明和简单数据。" },
+  { ext: ".md", type: "文本文档", desc: "Markdown 文档，使用轻量标记语法编写标题、列表、链接和代码块。" },
+  { ext: ".rtf", type: "文本文档", desc: "富文本格式，可保存字体、字号、颜色等基本排版信息。" },
+  { ext: ".doc", type: "办公文档", desc: "旧版 Microsoft Word 文档格式，常见于早期办公文件。" },
+  { ext: ".docx", type: "办公文档", desc: "新版 Word 文档格式，基于 Office Open XML，适合文字排版和协作。" },
+  { ext: ".odt", type: "办公文档", desc: "OpenDocument 文本文档，常见于 LibreOffice、OpenOffice 等办公套件。" },
+  { ext: ".pdf", type: "版式文档", desc: "便携式文档格式，强调跨平台显示一致性，常用于论文、合同和报告。" },
+  { ext: ".epub", type: "电子书", desc: "开放电子书格式，支持可重排文本，常用于电子阅读器。" },
+  { ext: ".mobi", type: "电子书", desc: "早期 Kindle 常用电子书格式，现已逐渐被 EPUB 等格式替代。" },
+  { ext: ".azw3", type: "电子书", desc: "Kindle 电子书格式，支持较复杂的排版和元数据。" },
+  { ext: ".xls", type: "电子表格", desc: "旧版 Excel 表格格式，常用于存储表格数据和公式。" },
+  { ext: ".xlsx", type: "电子表格", desc: "新版 Excel 表格格式，基于 Office Open XML，支持工作表、公式和图表。" },
+  { ext: ".ods", type: "电子表格", desc: "OpenDocument 表格格式，常见于 LibreOffice Calc。" },
+  { ext: ".csv", type: "数据表格", desc: "逗号分隔值文件，结构简单，适合跨软件交换表格数据。" },
+  { ext: ".tsv", type: "数据表格", desc: "制表符分隔值文件，适合字段中可能包含逗号的数据表。" },
+  { ext: ".ppt", type: "演示文稿", desc: "旧版 PowerPoint 演示文稿格式。" },
+  { ext: ".pptx", type: "演示文稿", desc: "新版 PowerPoint 演示文稿格式，支持幻灯片、动画、图表和多媒体。" },
+  { ext: ".odp", type: "演示文稿", desc: "OpenDocument 演示文稿格式，常见于 LibreOffice Impress。" },
+  { ext: ".jpg / .jpeg", type: "图片", desc: "有损压缩图片格式，适合照片和网页图片。" },
+  { ext: ".png", type: "图片", desc: "无损压缩图片格式，支持透明背景，适合图标、截图和界面素材。" },
+  { ext: ".gif", type: "图片", desc: "支持简单动画和有限颜色，常用于短循环动画。" },
+  { ext: ".bmp", type: "图片", desc: "位图格式，通常不压缩，文件体积较大。" },
+  { ext: ".webp", type: "图片", desc: "Web 图片格式，支持有损、无损和透明通道，压缩效率较高。" },
+  { ext: ".tif / .tiff", type: "图片", desc: "高质量图像格式，常用于扫描、出版和影像归档。" },
+  { ext: ".svg", type: "矢量图", desc: "基于 XML 的矢量图格式，适合图标、标志和可缩放图形。" },
+  { ext: ".ico", type: "图标", desc: "Windows 图标格式，可包含多种尺寸和颜色深度的图标图像。" },
+  { ext: ".heic", type: "图片", desc: "高效率图像格式，常见于 iPhone 拍摄照片。" },
+  { ext: ".raw", type: "图片", desc: "相机原始图像数据，保留较多传感器信息，适合后期处理。" },
+  { ext: ".psd", type: "图像工程", desc: "Adobe Photoshop 工程文件，保存图层、蒙版和编辑信息。" },
+  { ext: ".ai", type: "图像工程", desc: "Adobe Illustrator 矢量设计文件，常用于插画、标志和印刷设计。" },
+  { ext: ".mp3", type: "音频", desc: "常见有损压缩音频格式，兼容性高，适合音乐和播客。" },
+  { ext: ".wav", type: "音频", desc: "无压缩或低压缩音频格式，音质高但文件较大。" },
+  { ext: ".flac", type: "音频", desc: "无损压缩音频格式，能保留原始音质并减少体积。" },
+  { ext: ".aac", type: "音频", desc: "高效有损音频格式，常用于流媒体和移动设备。" },
+  { ext: ".ogg", type: "音频", desc: "开放容器格式，常与 Vorbis 或 Opus 音频编码搭配使用。" },
+  { ext: ".m4a", type: "音频", desc: "MPEG-4 音频容器，常用于 AAC 或 Apple Lossless 音频。" },
+  { ext: ".wma", type: "音频", desc: "Windows Media Audio 格式，常见于早期 Windows 媒体生态。" },
+  { ext: ".opus", type: "音频", desc: "低延迟高压缩效率音频格式，适合语音、会议和流媒体。" },
+  { ext: ".mid / .midi", type: "音乐数据", desc: "MIDI 乐器指令数据，不直接保存真实录音。" },
+  { ext: ".mp4", type: "视频", desc: "常见视频容器格式，兼容性强，常用于 H.264/H.265 视频。" },
+  { ext: ".mkv", type: "视频", desc: "Matroska 视频容器，支持多音轨、多字幕和多编码格式。" },
+  { ext: ".avi", type: "视频", desc: "较早的视频容器格式，兼容性广但结构较旧。" },
+  { ext: ".mov", type: "视频", desc: "Apple QuickTime 视频格式，常见于视频编辑和苹果设备。" },
+  { ext: ".wmv", type: "视频", desc: "Windows Media Video 格式，常见于早期 Windows 平台视频。" },
+  { ext: ".flv", type: "视频", desc: "Flash 视频格式，曾广泛用于网页视频播放。" },
+  { ext: ".webm", type: "视频", desc: "面向 Web 的开放视频格式，常用于浏览器播放。" },
+  { ext: ".m4v", type: "视频", desc: "MPEG-4 视频格式，常见于 Apple 生态。" },
+  { ext: ".3gp", type: "视频", desc: "移动设备早期常用视频格式，适合低带宽场景。" },
+  { ext: ".srt", type: "字幕", desc: "纯文本字幕格式，记录字幕序号、时间轴和字幕内容。" },
+  { ext: ".ass", type: "字幕", desc: "高级字幕格式，支持样式、定位和特效。" },
+  { ext: ".zip", type: "压缩归档", desc: "常见压缩包格式，支持多个文件打包和压缩。" },
+  { ext: ".rar", type: "压缩归档", desc: "RAR 压缩格式，支持较高压缩率和分卷压缩。" },
+  { ext: ".7z", type: "压缩归档", desc: "7-Zip 压缩格式，通常压缩率较高。" },
+  { ext: ".tar", type: "归档", desc: "Unix/Linux 常用打包格式，本身通常只打包不压缩。" },
+  { ext: ".gz", type: "压缩", desc: "Gzip 压缩格式，常用于压缩单个文件或与 tar 组合。" },
+  { ext: ".bz2", type: "压缩", desc: "Bzip2 压缩格式，压缩率通常较 gzip 高但速度较慢。" },
+  { ext: ".xz", type: "压缩", desc: "XZ 压缩格式，压缩率高，常见于 Linux 软件包。" },
+  { ext: ".iso", type: "光盘镜像", desc: "光盘映像文件，可保存光盘完整结构和内容。" },
+  { ext: ".dmg", type: "磁盘镜像", desc: "macOS 常用磁盘镜像格式，常用于软件分发。" },
+  { ext: ".vhd / .vhdx", type: "虚拟磁盘", desc: "Microsoft 虚拟硬盘格式，常用于虚拟机和系统镜像。" },
+  { ext: ".vmdk", type: "虚拟磁盘", desc: "VMware 虚拟磁盘格式，保存虚拟机硬盘数据。" },
+  { ext: ".json", type: "数据交换", desc: "JavaScript Object Notation，常用于配置、接口传输和结构化数据。" },
+  { ext: ".xml", type: "数据交换", desc: "可扩展标记语言，适合层级结构数据和文档描述。" },
+  { ext: ".yaml / .yml", type: "配置数据", desc: "易读的数据序列化格式，常用于配置文件和自动化脚本。" },
+  { ext: ".toml", type: "配置数据", desc: "强调清晰配置语义的文本格式，常见于 Rust、Python 工具配置。" },
+  { ext: ".ini", type: "配置数据", desc: "简单键值对配置格式，常用于 Windows 程序和旧式软件配置。" },
+  { ext: ".env", type: "配置数据", desc: "环境变量配置文件，常用于保存应用运行参数。" },
+  { ext: ".sql", type: "数据库脚本", desc: "SQL 脚本文件，保存建表、查询、插入或迁移语句。" },
+  { ext: ".db / .sqlite", type: "数据库", desc: "SQLite 数据库文件，适合本地轻量级数据存储。" },
+  { ext: ".mdb", type: "数据库", desc: "旧版 Microsoft Access 数据库格式。" },
+  { ext: ".accdb", type: "数据库", desc: "新版 Microsoft Access 数据库格式。" },
+  { ext: ".parquet", type: "数据存储", desc: "列式存储格式，常用于大数据分析和数据湖。" },
+  { ext: ".avro", type: "数据存储", desc: "支持模式定义的数据序列化格式，常用于数据管道。" },
+  { ext: ".orc", type: "数据存储", desc: "面向 Hadoop 生态的列式存储格式。" },
+  { ext: ".html", type: "网页", desc: "超文本标记语言文件，定义网页结构。" },
+  { ext: ".css", type: "网页", desc: "层叠样式表文件，定义网页视觉样式和布局。" },
+  { ext: ".js", type: "程序代码", desc: "JavaScript 脚本文件，常用于网页交互、服务端程序和自动化。" },
+  { ext: ".ts", type: "程序代码", desc: "TypeScript 源码文件，在 JavaScript 基础上增加静态类型。" },
+  { ext: ".py", type: "程序代码", desc: "Python 源码文件，常用于脚本、数据分析、Web 后端和自动化。" },
+  { ext: ".java", type: "程序代码", desc: "Java 源码文件，常用于企业应用、Android 和后端系统。" },
+  { ext: ".c", type: "程序代码", desc: "C 语言源码文件，常用于系统编程、嵌入式和高性能组件。" },
+  { ext: ".cpp", type: "程序代码", desc: "C++ 源码文件，常用于游戏、图形、系统和性能敏感应用。" },
+  { ext: ".cs", type: "程序代码", desc: "C# 源码文件，常用于 .NET 应用、Unity 游戏和企业系统。" },
+  { ext: ".go", type: "程序代码", desc: "Go 源码文件，常用于云服务、网络程序和命令行工具。" },
+  { ext: ".rs", type: "程序代码", desc: "Rust 源码文件，强调内存安全和高性能。" },
+  { ext: ".php", type: "程序代码", desc: "PHP 源码文件，常用于 Web 服务端开发。" },
+  { ext: ".rb", type: "程序代码", desc: "Ruby 源码文件，常见于脚本和 Ruby on Rails 应用。" },
+  { ext: ".swift", type: "程序代码", desc: "Swift 源码文件，常用于 iOS、macOS 等 Apple 平台应用。" },
+  { ext: ".kt", type: "程序代码", desc: "Kotlin 源码文件，常用于 Android 和 JVM 应用。" },
+  { ext: ".sh", type: "脚本", desc: "Shell 脚本文件，常用于 Linux/macOS 命令自动化。" },
+  { ext: ".bat", type: "脚本", desc: "Windows 批处理脚本文件，用于执行命令序列。" },
+  { ext: ".ps1", type: "脚本", desc: "PowerShell 脚本文件，常用于 Windows 管理和自动化。" },
+  { ext: ".exe", type: "可执行文件", desc: "Windows 可执行程序文件，包含可直接运行的机器代码或程序入口。" },
+  { ext: ".dll", type: "动态库", desc: "Windows 动态链接库，供程序在运行时加载调用。" },
+  { ext: ".so", type: "动态库", desc: "Linux/Unix 共享对象库，类似 Windows 的 DLL。" },
+  { ext: ".apk", type: "应用包", desc: "Android 应用安装包，包含程序代码、资源和清单。" },
+  { ext: ".ipa", type: "应用包", desc: "iOS 应用归档包，通常用于 Apple 设备应用分发。" },
+  { ext: ".ttf", type: "字体", desc: "TrueType 字体格式，广泛用于操作系统和设计软件。" },
+  { ext: ".otf", type: "字体", desc: "OpenType 字体格式，支持更丰富的字体特性。" },
+  { ext: ".pem", type: "证书密钥", desc: "文本编码的证书或密钥格式，常用于 TLS、SSH 和加密场景。" },
+  { ext: ".crt", type: "证书", desc: "证书文件格式，通常保存公钥证书。" },
+  { ext: ".key", type: "密钥", desc: "私钥文件格式，常用于服务器证书、SSH 或加密系统。" },
+  { ext: ".p12 / .pfx", type: "证书密钥", desc: "可包含证书和私钥的二进制容器，常用于证书导入导出。" },
+  { ext: ".log", type: "日志", desc: "日志文件，记录程序运行状态、错误和审计信息。" },
+  { ext: ".bak", type: "备份", desc: "备份文件扩展名，通常表示原文件的备份副本。" }
+];
+
+const accents = ["#37f4ff", "#64ff9d", "#ffca57", "#ff5fd2", "#ff6b6b"];
+const state = { category: "全部", query: "", selected: 6 };
+
+const grid = document.querySelector("#formatGrid");
+const strip = document.querySelector("#categoryStrip");
+const orbitMap = document.querySelector("#orbitMap");
+const searchInput = document.querySelector("#searchInput");
+const fileNameInput = document.querySelector("#fileNameInput");
+const filePicker = document.querySelector("#filePicker");
+const quickLookupButton = document.querySelector("#quickLookupButton");
+const quickResult = document.querySelector("#quickResult");
+const resultTitle = document.querySelector("#resultTitle");
+const visibleCount = document.querySelector("#visibleCount");
+
+const categories = ["全部", ...new Set(formats.map((item) => item.type))];
+
+function colorFor(type) {
+  const index = categories.indexOf(type);
+  return accents[Math.max(0, index) % accents.length];
+}
+
+function extensionTokens(item) {
+  return item.ext
+    .toLowerCase()
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function extensionCandidates(value) {
+  const cleaned = value
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .split(/[?#]/)[0]
+    .split(/[\\/]/)
+    .pop()
+    .toLowerCase();
+
+  if (!cleaned) return [];
+  if (cleaned.startsWith(".") && !cleaned.includes(" ")) return [cleaned];
+  if (/^[a-z0-9]+$/.test(cleaned)) return [`.${cleaned}`];
+
+  const pieces = cleaned.split(".");
+  if (pieces.length < 2) return [];
+  return pieces
+    .slice(1)
+    .map((_, index) => `.${pieces.slice(index + 1).join(".")}`)
+    .sort((a, b) => b.length - a.length);
+}
+
+function findFormatByExtension(value) {
+  const candidates = extensionCandidates(value);
+  for (const candidate of candidates) {
+    const exact = formats.find((item) => extensionTokens(item).includes(candidate));
+    if (exact) return { item: exact, extension: candidate, exact: true };
+  }
+
+  const fallback = candidates[candidates.length - 1] || value.trim().toLowerCase();
+  const loose = formats.find((item) => item.ext.toLowerCase().includes(fallback.replace(/^\./, "")));
+  return loose ? { item: loose, extension: fallback, exact: false } : { item: null, extension: fallback, exact: false };
+}
+
+function filteredFormats() {
+  const query = state.query.trim().toLowerCase();
+  return formats.filter((item) => {
+    const inCategory = state.category === "全部" || item.type === state.category;
+    const haystack = `${item.ext} ${item.type} ${item.desc}`.toLowerCase();
+    return inCategory && (!query || haystack.includes(query));
+  });
+}
+
+function renderCategories() {
+  strip.innerHTML = "";
+  categories.forEach((category) => {
+    const button = document.createElement("button");
+    button.className = `chip${category === state.category ? " active" : ""}`;
+    button.type = "button";
+    button.textContent = category;
+    button.addEventListener("click", () => {
+      state.category = category;
+      state.selected = 0;
+      render();
+    });
+    strip.appendChild(button);
+  });
+}
+
+function renderOrbit() {
+  orbitMap.querySelectorAll(".orbit-node").forEach((node) => node.remove());
+  const usable = categories.filter((category) => category !== "全部");
+  usable.forEach((category, index) => {
+    const angle = (Math.PI * 2 * index) / usable.length - Math.PI / 2;
+    const radius = index % 2 === 0 ? 112 : 76;
+    const node = document.createElement("span");
+    node.className = `orbit-node${category === state.category ? " hot" : ""}`;
+    node.style.left = `calc(50% + ${Math.cos(angle) * radius}px)`;
+    node.style.top = `calc(50% + ${Math.sin(angle) * radius}px)`;
+    node.style.background = colorFor(category);
+    node.style.boxShadow = `0 0 18px ${colorFor(category)}`;
+    orbitMap.appendChild(node);
+  });
+}
+
+function updateDetail(item, originalIndex) {
+  document.querySelector("#detailExt").textContent = item.ext;
+  document.querySelector("#detailName").textContent = item.type;
+  document.querySelector("#detailDesc").textContent = item.desc;
+  document.querySelector("#detailIndex").textContent = `#${String(originalIndex + 1).padStart(3, "0")}`;
+  document.querySelector("#detailType").textContent = item.type;
+}
+
+function renderGrid(items) {
+  grid.innerHTML = "";
+  items.forEach((item) => {
+    const originalIndex = formats.indexOf(item);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `format-card${originalIndex === state.selected ? " active" : ""}`;
+    button.style.setProperty("--accent", colorFor(item.type));
+    button.innerHTML = `<strong>${item.ext}</strong><span>${item.type}</span><p>${item.desc}</p>`;
+    button.addEventListener("click", () => {
+      state.selected = originalIndex;
+      updateDetail(item, originalIndex);
+      renderGrid(filteredFormats());
+    });
+    grid.appendChild(button);
+  });
+}
+
+function render() {
+  renderCategories();
+  renderOrbit();
+  const items = filteredFormats();
+  visibleCount.textContent = items.length;
+  resultTitle.textContent = state.category === "全部" ? "全部格式" : state.category;
+  const selectedItem = formats[state.selected] && items.includes(formats[state.selected]) ? formats[state.selected] : items[0];
+  if (selectedItem) {
+    state.selected = formats.indexOf(selectedItem);
+    updateDetail(selectedItem, state.selected);
+  }
+  renderGrid(items);
+}
+
+searchInput.addEventListener("input", (event) => {
+  state.query = event.target.value;
+  render();
+});
+
+function runQuickLookup(value) {
+  const rawValue = value.trim();
+  if (!rawValue) {
+    quickResult.textContent = "请输入文件名，或先选择一个本地文件。";
+    return;
+  }
+
+  const match = findFormatByExtension(rawValue);
+  if (!match.item) {
+    const extensionText = match.extension ? `“${match.extension}”` : "该文件名";
+    state.category = "全部";
+    state.query = match.extension.replace(/^\./, "");
+    searchInput.value = state.query;
+    render();
+    quickResult.innerHTML = `未找到 ${extensionText} 的精确说明。已尝试用扩展名进行普通检索。`;
+    return;
+  }
+
+  state.category = match.item.type;
+  state.query = match.extension;
+  state.selected = formats.indexOf(match.item);
+  searchInput.value = match.extension;
+  render();
+  quickResult.innerHTML = `已识别 <strong>${rawValue}</strong>：扩展名 <strong>${match.extension}</strong>，类型为 <strong>${match.item.type}</strong>。`;
+}
+
+quickLookupButton.addEventListener("click", () => runQuickLookup(fileNameInput.value));
+
+fileNameInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") runQuickLookup(fileNameInput.value);
+});
+
+filePicker.addEventListener("change", (event) => {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  fileNameInput.value = file.name;
+  runQuickLookup(file.name);
+});
+
+document.querySelectorAll(".mode-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".mode-button").forEach((item) => item.classList.remove("active"));
+    button.classList.add("active");
+    grid.classList.toggle("compact", button.dataset.density === "compact");
+  });
+});
+
+function startStarfield() {
+  const canvas = document.querySelector("#starfield");
+  const ctx = canvas.getContext("2d");
+  const stars = Array.from({ length: 120 }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    speed: 0.0008 + Math.random() * 0.002,
+    size: 0.8 + Math.random() * 1.8,
+    tint: accents[Math.floor(Math.random() * accents.length)]
+  }));
+
+  function resize() {
+    canvas.width = window.innerWidth * window.devicePixelRatio;
+    canvas.height = window.innerHeight * window.devicePixelRatio;
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach((star) => {
+      star.y += star.speed;
+      if (star.y > 1) star.y = 0;
+      ctx.fillStyle = star.tint;
+      ctx.globalAlpha = 0.25 + star.size / 4;
+      ctx.fillRect(star.x * canvas.width, star.y * canvas.height, star.size, star.size);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  frame();
+}
+
+document.querySelector("#totalCount").textContent = formats.length;
+document.querySelector("#categoryCount").textContent = categories.length - 1;
+render();
+startStarfield();
+
+</script>
+  </body>
+</html>
