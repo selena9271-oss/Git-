@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Format Atlas Signal Mark</title>
+  <desc id="desc">A sci-fi radar style signal mark for the file format atlas interface.</desc>
+  <rect width="640" height="640" fill="#05080c"/>
+  <g fill="none" stroke="#37f4ff" stroke-opacity=".38">
+    <circle cx="320" cy="320" r="250"/>
+    <circle cx="320" cy="320" r="190"/>
+    <circle cx="320" cy="320" r="126"/>
+    <path d="M320 42v556M42 320h556"/>
+    <path d="M143 143l354 354M497 143L143 497"/>
+  </g>
+  <g stroke-width="10" stroke-linecap="round">
+    <path d="M320 320 488 226" stroke="#ffca57"/>
+    <path d="M320 320 208 470" stroke="#64ff9d"/>
+    <path d="M320 320 162 242" stroke="#ff5fd2"/>
+  </g>
+  <g>
+    <circle cx="488" cy="226" r="18" fill="#ffca57"/>
+    <circle cx="208" cy="470" r="18" fill="#64ff9d"/>
+    <circle cx="162" cy="242" r="18" fill="#ff5fd2"/>
+    <circle cx="320" cy="320" r="54" fill="#07131a" stroke="#37f4ff" stroke-width="4"/>
+  </g>
+  <g fill="#edf7f8" font-family="Segoe UI, Arial, sans-serif" font-weight="800" text-anchor="middle">
+    <text x="320" y="308" font-size="32">FORMAT</text>
+    <text x="320" y="346" font-size="32">ATLAS</text>
+  </g>
+</svg>
